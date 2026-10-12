@@ -18,6 +18,10 @@ class Machine(Protocol):
 
     def read_host(self) -> HostStatus | None: ...
 
+    def mount_namespace(self) -> str | None:
+        """Espace de montage de sweep (Linux), pour reconnaître un process de conteneur."""
+        ...
+
     def terminate(self, targets: Sequence[ProcessInfo]) -> list[int]:
         """Arrête les process encore identiques à leur photo ; renvoie les pid survivants."""
         ...
