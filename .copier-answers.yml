@@ -1,0 +1,19 @@
+# Réponses de kiln : ne pas modifier à la main, `kiln update` s'en sert.
+_commit: 15722c0
+_src_path: https://github.com/antoine-tena/kiln.git
+backend: cli
+boussole: sweep libère la RAM du poste en une commande sûre
+date_creation: '2026-10-13'
+description: Trouve ce qui encombre la RAM et le swap (agents oubliés, serveurs orphelins)
+    et propose quoi tuer, sous Linux, WSL, macOS et Windows.
+envergure: spark
+equipe:
+- antoine-tena
+frontend: aucun
+nom: sweep
+podman: false
+proprietaire: antoine-tena
+statusline_ci: true
+titre: Sweep
+type_projet: outil
+url_sante_prod: ''
