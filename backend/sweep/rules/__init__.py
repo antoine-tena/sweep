@@ -12,7 +12,8 @@ __all__ = ["ScanContext", "find_candidates"]
 
 
 def find_candidates(context: ScanContext) -> list[Candidate]:
-    """Candidats de toutes les règles, sans process protégé ni doublon, les plus lourds d'abord."""
+    """Candidats de toutes les règles, sans process protégé ni doublon : sûrs puis à vérifier,
+    les plus lourds d'abord."""
     claimed: set[int] = set()
     candidates = []
     for rule in RULES:
@@ -21,8 +22,18 @@ def find_candidates(context: ScanContext) -> list[Candidate]:
             if not pids or pids[0] != candidate.main_pid or candidate.main_pid in claimed:
                 continue
             claimed.update(pids)
-            rss_bytes = context.tree.rss_of(pids)
-            candidates.append(
-                Candidate(candidate.rule, candidate.label, candidate.reason, pids, rss_bytes)
-            )
-    return sorted(candidates, key=lambda candidate: candidate.rss_bytes, reverse=True)
+            candidates.append(_with_pids(context, candidate, pids))
+    return sorted(
+        candidates, key=lambda candidate: (not candidate.is_certain, -candidate.rss_bytes)
+    )
+
+
+def _with_pids(context: ScanContext, candidate: Candidate, pids: tuple[int, ...]) -> Candidate:
+    return Candidate(
+        candidate.rule,
+        candidate.label,
+        candidate.reason,
+        pids,
+        context.tree.rss_of(pids),
+        candidate.is_certain,
+    )

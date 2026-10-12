@@ -4,6 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
+from sweep.process_info import ProcessInfo
 from sweep.rules.patterns import IDLE_AGENT_AGE
 from sweep.rules.tree import ProcessTree
 
@@ -16,3 +17,12 @@ class ScanContext:
     protected_pids: frozenset[int]
     path_exists: Callable[[str], bool]
     idle_agent_age: timedelta = IDLE_AGENT_AGE
+    # Faux sous Windows : un orphelin y garde le pid de son parent mort, parfois réattribué.
+    can_trace_orphans: bool = True
+    own_mount_namespace: str | None = None
+
+    def in_own_mounts(self, process: ProcessInfo) -> bool:
+        """Même espace de montage que sweep : ses chemins se vérifient d'ici (pas un conteneur)."""
+        return (
+            process.mount_namespace is None or process.mount_namespace == self.own_mount_namespace
+        )
