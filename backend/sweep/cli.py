@@ -8,13 +8,14 @@ import argparse
 import os
 import sys
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from importlib.metadata import version
 from typing import TextIO
 
 from sweep.local_machine import LocalMachine
 from sweep.machine import Machine
 from sweep.report import render_json, render_text
+from sweep.rules.patterns import IDLE_AGENT_AGE
 from sweep.scan import scan
 from sweep.scan_result import ScanResult
 from sweep.sizes import format_size
@@ -32,6 +33,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--yes", action="store_true", help="avec --kill : sans confirmation")
     parser.add_argument("--dry-run", action="store_true", help="avec --kill : simuler seulement")
     parser.add_argument("--json", action="store_true", help="rapport en JSON, sans rien tuer")
+    parser.add_argument(
+        "--idle-hours",
+        type=_positive_hours,
+        default=IDLE_AGENT_AGE / timedelta(hours=1),
+        help="âge à partir duquel un agent sans activité est candidat (défaut : %(default)g)",
+    )
     return parser
 
 
@@ -44,7 +51,8 @@ def main(
 ) -> int:
     args = build_parser().parse_args(argv)
     machine = machine or LocalMachine()
-    result = scan(machine, clock(), os.getpid())
+    idle_age = timedelta(hours=args.idle_hours)
+    result = scan(machine, clock(), os.getpid(), idle_agent_age=idle_age)
     if args.json:
         out.write(render_json(result))
         return EXIT_OK
@@ -67,3 +75,14 @@ def _kill(machine: Machine, result: ScanResult, out: TextIO) -> int:
         return EXIT_FAILURE
     out.write(f"Arrêtés : environ {format_size(result.reclaimable_bytes)} libérés.\n")
     return EXIT_OK
+
+
+def _positive_hours(raw_hours: str) -> float:
+    """Validée à la frontière ([VALIDATION-AUX-FRONTIERES]) : un nombre d'heures positif."""
+    try:
+        hours = float(raw_hours)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"nombre d'heures attendu : {raw_hours!r}") from None
+    if hours <= 0:
+        raise argparse.ArgumentTypeError("le nombre d'heures doit être positif")
+    return hours

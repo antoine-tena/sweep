@@ -8,7 +8,6 @@ from sweep.process_info import ProcessInfo
 from sweep.rules.patterns import (
     AGENT_PROGRAMS,
     AGENT_SCRIPT,
-    IDLE_AGENT_AGE,
     IDLE_CPU_PERCENT,
     SESSION_FLAGS,
 )
@@ -76,7 +75,7 @@ def _age(context: ScanContext, process: ProcessInfo) -> timedelta:
 
 
 def _is_idle(context: ScanContext, agent: ProcessInfo) -> bool:
-    return _age(context, agent) >= IDLE_AGENT_AGE and agent.cpu_percent < IDLE_CPU_PERCENT
+    return _age(context, agent) >= context.idle_agent_age and agent.cpu_percent < IDLE_CPU_PERCENT
 
 
 def _idle_reason(context: ScanContext, agent: ProcessInfo) -> str:

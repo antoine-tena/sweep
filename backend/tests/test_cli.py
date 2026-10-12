@@ -64,3 +64,16 @@ def test_version_exits_cleanly(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert exit_info.value.code == EXIT_OK
     assert capsys.readouterr().out.startswith("sweep ")
+
+
+def test_idle_hours_lowers_the_threshold() -> None:
+    machine = FakeMachine([make_process(10, "claude", age=timedelta(hours=1), rss_mib=50)])
+
+    assert "Rien à tuer" in _run([], machine)
+    assert "claude lancé il y a 1 h" in _run(["--idle-hours", "0.5"], machine)
+
+
+@pytest.mark.parametrize("raw_hours", ["0", "-2", "trois"])
+def test_idle_hours_must_be_positive(raw_hours: str) -> None:
+    with pytest.raises(SystemExit):
+        main(["--idle-hours", raw_hours], io.StringIO(), FakeMachine([]))
