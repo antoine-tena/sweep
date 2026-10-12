@@ -1,5 +1,6 @@
 import pytest
 
+from sweep.rules.agents import is_agent
 from tests.factories import make_process
 
 
@@ -14,3 +15,9 @@ from tests.factories import make_process
 )
 def test_program_comes_from_command_line(command: str, name: str, program: str) -> None:
     assert make_process(10, command, name=name).program == program
+
+
+def test_windows_agent_is_recognised_from_its_exe_path() -> None:
+    agent = make_process(10, r"C:\Users\me\AppData\Local\agy\agy.exe --conversation abc")
+
+    assert is_agent(agent)
