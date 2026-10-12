@@ -1,16 +1,61 @@
 import io
+import json
+from datetime import timedelta
 
 import pytest
 
 from sweep.cli import EXIT_OK, main
-from sweep.greeting import build_greeting
+from tests.factories import NOW, FakeMachine, make_process
 
 
-def test_main_writes_greeting_to_given_stream() -> None:
+def _machine_with_leftover() -> FakeMachine:
+    return FakeMachine([make_process(10, "agy", age=timedelta(hours=9), rss_mib=300)])
+
+
+def _run(arguments: list[str], machine: FakeMachine, answer: str = "") -> str:
     out = io.StringIO()
+    exit_code = main(arguments, out, machine, ask=lambda _prompt: answer, clock=lambda: NOW)
+    assert exit_code == EXIT_OK
+    return out.getvalue()
 
-    assert main(["Ada"], out=out) == EXIT_OK
-    assert out.getvalue() == "Bonjour, Ada !\n"
+
+def test_default_run_only_reports() -> None:
+    machine = _machine_with_leftover()
+
+    report = _run([], machine)
+
+    assert "agy lancé il y a 9 h" in report
+    assert machine.terminated == []
+
+
+@pytest.mark.parametrize(
+    ("arguments", "answer"), [(["--kill"], "n"), (["--kill", "--dry-run"], "o")]
+)
+def test_kill_needs_a_real_yes(arguments: list[str], answer: str) -> None:
+    machine = _machine_with_leftover()
+
+    _run(arguments, machine, answer)
+
+    assert machine.terminated == []
+
+
+@pytest.mark.parametrize(("arguments", "answer"), [(["--kill"], "oui"), (["--kill", "--yes"], "")])
+def test_confirmed_kill_stops_the_candidates(arguments: list[str], answer: str) -> None:
+    machine = _machine_with_leftover()
+
+    report = _run(arguments, machine, answer)
+
+    assert machine.terminated == [10]
+    assert "Arrêtés : environ 300 Mo libérés." in report
+
+
+def test_json_report_is_stable_and_kills_nothing() -> None:
+    machine = _machine_with_leftover()
+
+    document = json.loads(_run(["--json", "--kill", "--yes"], machine))
+
+    assert [candidate["pids"] for candidate in document["candidates"]] == [[10]]
+    assert machine.terminated == []
 
 
 def test_version_exits_cleanly(capsys: pytest.CaptureFixture[str]) -> None:
@@ -19,7 +64,3 @@ def test_version_exits_cleanly(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert exit_info.value.code == EXIT_OK
     assert capsys.readouterr().out.startswith("sweep ")
-
-
-def test_blank_name_falls_back_to_default() -> None:
-    assert build_greeting("  ") == "Bonjour, monde !"
