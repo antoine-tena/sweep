@@ -15,18 +15,28 @@ NOW = datetime(2026, 10, 13, 12, 0, tzinfo=UTC)
 MIB = 1024**2
 GIB = 1024**3
 INIT_PID = 1
+# Parent vivant par défaut (un shell hors de la photo) : rien n'est orphelin sans le dire.
+SHELL_PID = 500
+OWN_MOUNTS = "mnt:[4026532217]"
+CONTAINER_MOUNTS = "mnt:[4026533001]"
+TERMINAL = "/dev/pts/3"
 
 
 def make_process(
     pid: int,
     command: str,
     *,
-    ppid: int = INIT_PID,
+    ppid: int = SHELL_PID,
     rss_mib: int = 100,
     age: timedelta = timedelta(minutes=5),
     cpu_percent: float = 0.0,
     cwd: str | None = "/home/user",
     name: str | None = None,
+    is_own: bool = True,
+    terminal: str | None = None,
+    stdin_target: str | None = None,
+    open_pipes: frozenset[str] = frozenset(),
+    mount_namespace: str | None = None,
 ) -> ProcessInfo:
     arguments = tuple(command.split())
     return ProcessInfo(
@@ -38,6 +48,11 @@ def make_process(
         started_at=NOW - age,
         cpu_percent=cpu_percent,
         cwd=cwd,
+        is_own=is_own,
+        terminal=terminal,
+        stdin_target=stdin_target,
+        open_pipes=open_pipes,
+        mount_namespace=mount_namespace,
     )
 
 
@@ -46,12 +61,15 @@ def make_context(
     *,
     protected_pids: frozenset[int] = frozenset(),
     missing_paths: frozenset[str] = frozenset(),
+    can_trace_orphans: bool = True,
 ) -> ScanContext:
     return ScanContext(
         tree=ProcessTree(processes),
         now=NOW,
         protected_pids=protected_pids,
         path_exists=lambda path: path not in missing_paths,
+        can_trace_orphans=can_trace_orphans,
+        own_mount_namespace=OWN_MOUNTS,
     )
 
 
@@ -83,6 +101,9 @@ class FakeMachine:
 
     def read_host(self) -> HostStatus | None:
         return self.host
+
+    def mount_namespace(self) -> str | None:
+        return OWN_MOUNTS
 
     def terminate(self, targets: Sequence[ProcessInfo]) -> list[int]:
         self.terminated += [target.pid for target in targets]
