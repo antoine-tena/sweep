@@ -2,12 +2,18 @@
 
 import json
 
+from sweep.candidate import Candidate
 from sweep.memory_status import MemoryStatus
 from sweep.scan_result import ScanResult
 from sweep.sizes import format_size
 
 LABEL_WIDTH = 70
 JSON_INDENT = 2
+NOTHING_FOUND = "Rien à tuer : aucun reste détecté."
+CERTAIN_TITLE = "Sûrs, arrêtés par `sweep --kill` :"
+UNCERTAIN_TITLE = (
+    "À vérifier, peut-être encore utilisés (arrêter un seul : `sweep --kill --pid N`) :"
+)
 
 
 def render_text(result: ScanResult) -> str:
@@ -17,15 +23,13 @@ def render_text(result: ScanResult) -> str:
             f"Windows : {format_size(result.host.available_bytes)} libres sur "
             f"{format_size(result.host.total_bytes)}"
         )
-    lines += ["", "À tuer :" if result.candidates else "Rien à tuer : aucun reste détecté."]
-    for candidate in result.candidates:
-        lines.append(
-            f"  {format_size(candidate.rss_bytes):>8}  pid {candidate.main_pid:<8} "
-            f"{candidate.reason}"
-        )
-        lines.append(f"            {_shorten(candidate.label)}")
-    if result.candidates:
+    if not result.candidates:
+        lines += ["", NOTHING_FOUND]
+    if result.certain:
+        lines += ["", CERTAIN_TITLE, *_candidate_lines(result.certain)]
         lines.append(f"  Total récupérable : environ {format_size(result.reclaimable_bytes)}.")
+    if result.uncertain:
+        lines += ["", UNCERTAIN_TITLE, *_candidate_lines(result.uncertain)]
     lines += ["", "Plus gros process :"]
     lines += [
         f"  {format_size(process.rss_bytes):>8}  pid {process.pid:<8} "
@@ -47,6 +51,17 @@ def render_json(result: ScanResult) -> str:
         "advice": list(result.advice),
     }
     return json.dumps(document, ensure_ascii=False, indent=JSON_INDENT) + "\n"
+
+
+def _candidate_lines(candidates: tuple[Candidate, ...]) -> list[str]:
+    lines = []
+    for candidate in candidates:
+        lines.append(
+            f"  {format_size(candidate.rss_bytes):>8}  pid {candidate.main_pid:<8} "
+            f"{candidate.reason}"
+        )
+        lines.append(f"            {_shorten(candidate.label)}")
+    return lines
 
 
 def _memory_line(memory: MemoryStatus) -> str:

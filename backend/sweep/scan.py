@@ -6,6 +6,7 @@ from pathlib import Path
 
 from sweep.advice import build_advice
 from sweep.machine import Machine
+from sweep.platforms import Platform
 from sweep.rules import ScanContext, find_candidates
 from sweep.rules.patterns import IDLE_AGENT_AGE
 from sweep.rules.tree import ProcessTree
@@ -24,8 +25,17 @@ def scan(
     processes = machine.read_processes()
     tree = ProcessTree(processes)
     protected = frozenset({own_pid, *(ancestor.pid for ancestor in tree.ancestors(own_pid))})
-    context = ScanContext(tree, now, protected, path_exists, idle_agent_age)
-    memory, platform, host = machine.read_memory(), machine.platform(), machine.read_host()
+    platform = machine.platform()
+    context = ScanContext(
+        tree,
+        now,
+        protected,
+        path_exists,
+        idle_agent_age,
+        can_trace_orphans=platform is not Platform.WINDOWS,
+        own_mount_namespace=machine.mount_namespace(),
+    )
+    memory, host = machine.read_memory(), machine.read_host()
     heaviest = sorted(processes, key=lambda process: process.rss_bytes, reverse=True)
     return ScanResult(
         platform=platform,
