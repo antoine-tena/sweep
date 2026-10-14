@@ -10,6 +10,16 @@ reprise de celle d'AnnSki : tout code nouveau la respecte, humains et agents.
 La charte tient en deux fichiers : celui-ci (§0, §1, §4, §5) et [`backend/CLAUDE.md`](backend/CLAUDE.md)
 (§3), chargés par Claude Code dès qu'il travaille dans le dossier.
 
+## Carte du repo
+
+Où chercher, pour ne pas explorer : à lire avant d'ouvrir des fichiers, à tenir à jour dans le
+commit qui ajoute, déplace ou retire un dossier, un domaine ou un point d'entrée. Une ligne par
+endroit, ce qu'on y trouve ; pas de copie du code.
+
+- `backend/sweep/` : commandes (`cli.py`, point d'entrée `__main__.py`) et
+  logique métier ; `backend/tests/` : tests.
+- `docs/a-faire/` : suivi du travail ; `charte.toml` : règles contrôlées par `charte`.
+
 ## Langue
 
 - Échanges, documentation et messages de commit en français ; code en anglais.
