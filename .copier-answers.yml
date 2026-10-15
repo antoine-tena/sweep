@@ -1,5 +1,5 @@
 # Réponses de kiln : ne pas modifier à la main, `kiln update` s'en sert.
-_commit: f611f82
+_commit: v0.3.0-rc.1
 _src_path: https://github.com/antoine-tena/kiln.git
 backend: cli
 boussole: sweep libère la RAM du poste en une commande sûre
