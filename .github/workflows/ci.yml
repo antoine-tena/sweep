@@ -1,7 +1,8 @@
 name: CI
 
-# Les workflows réutilisables vivent dans kiln (antoine-tena/kiln, public) : ils évoluent pour
-# tous les projets à la fois. Le projet ne garde ici que ses paramètres.
+# Les workflows réutilisables vivent dans kiln (antoine-tena/kiln, public), cités à la version
+# de kiln dont part le projet (v0.3.0-rc.1) : `kiln update` les fait passer à la suivante. Le
+# projet ne garde ici que ses paramètres.
 on:
   push:
     branches: [ main, develop ]
@@ -10,15 +11,15 @@ on:
 
 jobs:
   backend:
-    uses: antoine-tena/kiln/.github/workflows/python.yml@develop
+    uses: antoine-tena/kiln/.github/workflows/python.yml@v0.3.0-rc.1
     with:
       dossier: backend
 
   charte:
-    uses: antoine-tena/kiln/.github/workflows/charte.yml@develop
+    uses: antoine-tena/kiln/.github/workflows/charte.yml@v0.3.0-rc.1
 
   securite:
-    uses: antoine-tena/kiln/.github/workflows/securite.yml@develop
+    uses: antoine-tena/kiln/.github/workflows/securite.yml@v0.3.0-rc.1
     with:
       uv: "backend"
       pnpm: ""

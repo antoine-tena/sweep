@@ -1,6 +1,7 @@
 # Règles de CLAUDE.md qu'aucun contrôle ne vérifie : appliquées en revue.
 # Fichier recalculé par kiln (set, update) depuis les CLAUDE.md et charte.toml : pour en retirer
 # une règle, ajouter son contrôle dans charte.toml, ou l'amender dans CLAUDE.md.
+[REMONTER-A-KILN]
 [TAILLE-FONCTION]
 [UNE-CLASSE]
 [NOMS-INTERDITS]
