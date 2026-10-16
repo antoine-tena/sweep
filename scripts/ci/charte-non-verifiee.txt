@@ -2,6 +2,7 @@
 # Fichier recalculé par kiln (set, update) depuis les CLAUDE.md et charte.toml : pour en retirer
 # une règle, ajouter son contrôle dans charte.toml, ou l'amender dans CLAUDE.md.
 [REMONTER-A-KILN]
+[DEROGATIONS]
 [TAILLE-FONCTION]
 [UNE-CLASSE]
 [NOMS-INTERDITS]
