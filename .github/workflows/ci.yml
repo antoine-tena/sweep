@@ -1,25 +1,44 @@
 name: CI
 
 # Les workflows réutilisables vivent dans kiln (antoine-tena/kiln, public), cités à la version
-# de kiln dont part le projet (v0.3.0-rc.1) : `kiln update` les fait passer à la suivante. Le
+# de kiln dont part le projet (v0.3.1-rc.1) : `kiln update` les fait passer à la suivante. Le
 # projet ne garde ici que ses paramètres.
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  # Rejouée par deploy.yml avant toute mise en production.
+  workflow_call:
 
 jobs:
   backend:
-    uses: antoine-tena/kiln/.github/workflows/python.yml@v0.3.0-rc.1
+    uses: antoine-tena/kiln/.github/workflows/python.yml@v0.3.1-rc.1
     with:
       dossier: backend
 
   charte:
-    uses: antoine-tena/kiln/.github/workflows/charte.yml@v0.3.0-rc.1
+    uses: antoine-tena/kiln/.github/workflows/charte.yml@v0.3.1-rc.1
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    # Sur une PR, gitleaks lit la liste de ses commits par l'API.
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # [SECRETS] : tout l'historique est fouillé, pas seulement le dernier commit.
+      - name: Rechercher des secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   securite:
-    uses: antoine-tena/kiln/.github/workflows/securite.yml@v0.3.0-rc.1
+    uses: antoine-tena/kiln/.github/workflows/securite.yml@v0.3.1-rc.1
     with:
       uv: "backend"
       pnpm: ""

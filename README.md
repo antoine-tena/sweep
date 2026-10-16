@@ -74,8 +74,8 @@ Ruff, mypy et pytest pour chaque projet Python, puis la charte.
 
 ## Suivi du travail
 
-Ce qui reste à faire est dans [`docs/a-faire/`](docs/a-faire/) : `a-faire.md` (la liste, par
-criticité), `ecarte.md` (ce qui a été refusé) et `urgent.md` (ce que seul un humain peut faire).
+Ce qui reste à faire est dans [`docs/backlog/`](docs/backlog/) : `backlog.md` (les tickets, par
+priorité), `rejected.md` (ce qui a été refusé) et `urgent.md` (ce que seul un humain peut faire).
 
 ## Contribuer
 
