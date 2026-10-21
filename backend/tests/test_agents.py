@@ -1,6 +1,12 @@
 from datetime import timedelta
 
-from sweep.rules.agents import RULE_DUPLICATE, RULE_IDLE, RULE_ORPHAN, find_agent_candidates
+from sweep.rules.agents import (
+    RULE_DUPLICATE,
+    RULE_IDLE,
+    RULE_ORPHAN,
+    RULE_STOPPED,
+    find_agent_candidates,
+)
 from tests.factories import INIT_PID, TERMINAL, make_context, make_process
 
 LONG_AGO = timedelta(hours=10)
@@ -101,3 +107,25 @@ def test_agent_recollected_by_a_wsl_relay_is_an_orphan() -> None:
     [candidate] = find_agent_candidates(make_context([relay, agent]))
 
     assert candidate.is_certain
+
+
+def test_stopped_agent_behind_another_in_its_terminal_is_certain() -> None:
+    stopped = make_process(10, "claude", terminal=TERMINAL, is_stopped=True)
+    active = make_process(20, "claude", terminal=TERMINAL, cpu_percent=20.0)
+    serena = make_process(11, "node vue-language-server", ppid=10, rss_mib=900)
+
+    [candidate] = find_agent_candidates(make_context([stopped, serena, active]))
+
+    assert (candidate.rule, candidate.main_pid, candidate.is_certain) == (RULE_STOPPED, 10, True)
+    assert set(candidate.pids) == {10, 11}
+    assert "pid 20" in candidate.reason
+
+
+def test_stopped_agent_alone_in_its_terminal_is_only_to_check() -> None:
+    other_terminal = make_process(20, "claude", terminal="/dev/pts/7", cpu_percent=20.0)
+    stopped = make_process(10, "claude", terminal=TERMINAL, is_stopped=True)
+
+    [candidate] = find_agent_candidates(make_context([stopped, other_terminal]))
+
+    assert (candidate.rule, candidate.is_certain) == (RULE_STOPPED, False)
+    assert "fg" in candidate.reason

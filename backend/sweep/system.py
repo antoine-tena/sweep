@@ -56,6 +56,7 @@ def _snapshot(handle: psutil.Process, owner: object) -> ProcessInfo | None:
                 cwd=_cwd(handle),
                 is_own=_owner_key(handle) == owner,
                 terminal=_terminal(handle),
+                is_stopped=handle.status() == psutil.STATUS_STOPPED,
                 stdin_target=details.stdin_target,
                 open_pipes=details.open_pipes,
                 mount_namespace=details.mount_namespace,

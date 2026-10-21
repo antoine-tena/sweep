@@ -22,6 +22,8 @@ class ProcessInfo:
     is_own: bool = True
     # Terminal de contrôle (`/dev/pts/3`), None s'il n'en a pas ou plus.
     terminal: str | None = None
+    # Suspendu (Ctrl+Z) : il ne tourne plus mais garde sa mémoire et celle de ses enfants.
+    is_stopped: bool = False
     # Linux seulement (None ailleurs) : cible de l'entrée standard (`pipe:[123]`, `/dev/null`),
     # canaux ouverts par le process, espace de montage (un conteneur a le sien).
     stdin_target: str | None = None

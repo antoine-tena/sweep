@@ -1,4 +1,4 @@
-"""Agents : sans terminal ni lanceur (sûr), vieux et inactifs ou en double (à vérifier)."""
+"""Agents : sans terminal ni lanceur (sûr), suspendus, vieux et inactifs ou en double."""
 
 from collections import defaultdict
 from datetime import timedelta
@@ -18,6 +18,7 @@ from sweep.rules.scan_context import ScanContext
 RULE_ORPHAN = "agent-sans-terminal"
 RULE_IDLE = "agent-inactif"
 RULE_DUPLICATE = "conversation-en-double"
+RULE_STOPPED = "agent-suspendu"
 SECONDS_PER_HOUR = 3600
 
 
@@ -38,6 +39,12 @@ def find_agent_candidates(context: ScanContext) -> list[Candidate]:
     for agent in agents:
         if _is_orphan(context, agent):
             candidates.append(_candidate(context, agent, RULE_ORPHAN, _orphan_reason(agent), True))
+        elif agent.is_stopped:
+            replacement = _active_agent_on_terminal(agents, agent)
+            reason = _stopped_reason(agent, replacement)
+            candidates.append(
+                _candidate(context, agent, RULE_STOPPED, reason, replacement is not None)
+            )
         elif agent in duplicates:
             candidates.append(_candidate(context, agent, RULE_DUPLICATE, duplicates[agent], False))
         elif _is_idle(context, agent):
@@ -63,6 +70,18 @@ def _is_orphan(context: ScanContext, agent: ProcessInfo) -> bool:
         and agent.terminal is None
         and is_reparented(context, agent)
         and agent.cpu_percent < IDLE_CPU_PERCENT
+    )
+
+
+def _active_agent_on_terminal(
+    agents: list[ProcessInfo], stopped: ProcessInfo
+) -> ProcessInfo | None:
+    """L'agent relancé dans le terminal de l'agent suspendu : celui-ci a été oublié derrière."""
+    if stopped.terminal is None:
+        return None
+    return next(
+        (agent for agent in agents if agent.terminal == stopped.terminal and not agent.is_stopped),
+        None,
     )
 
 
@@ -97,6 +116,15 @@ def _is_idle(context: ScanContext, agent: ProcessInfo) -> bool:
 def _idle_reason(context: ScanContext, agent: ProcessInfo) -> str:
     hours = _age(context, agent).total_seconds() / SECONDS_PER_HOUR
     return f"{agent.program} lancé il y a {hours:.0f} h, sans activité (attend-il une réponse ?)"
+
+
+def _stopped_reason(agent: ProcessInfo, replacement: ProcessInfo | None) -> str:
+    if replacement is None:
+        return f"{agent.program} suspendu (Ctrl+Z) : `fg` dans son terminal pour le reprendre"
+    return (
+        f"{agent.program} suspendu (Ctrl+Z), oublié derrière le pid {replacement.pid} "
+        "lancé dans le même terminal"
+    )
 
 
 def _orphan_reason(agent: ProcessInfo) -> str:
