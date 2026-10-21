@@ -66,6 +66,7 @@ leur canal ; sous Windows, qui ne rattache pas les orphelins, tout reste à vér
 |---|---|---|
 | Serveur MCP | son lanceur est mort (recueilli par `init` ou `systemd --user`) **et** plus aucun process ne tient le canal par lequel l'agent lui parlait | détaché sans canal (lancé à part exprès ?) |
 | Agent (claude, agy…) | interactif, sans terminal, lanceur mort, inactif | inactif depuis `--idle-hours` (3 h), ou même conversation ouverte deux fois |
+| Agent suspendu (Ctrl+Z) | un autre agent tourne dans son terminal : il a été oublié derrière | seul dans son terminal (`fg` le reprend) |
 | Serveur de dev | dossier supprimé, sans terminal, lanceur mort | dossier supprimé mais encore attaché |
 
 Jamais candidats : les process d'un autre utilisateur, sweep et ses ancêtres (le terminal,
