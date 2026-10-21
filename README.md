@@ -50,6 +50,30 @@ cd backend && uv run sweep --help
 uv tool install --editable backend   # depuis la racine : la commande sur tout le poste
 ```
 
+## Ce que sweep arrête
+
+`sweep` ne fait que montrer. Il range ce qu'il trouve en deux niveaux :
+
+- **Sûr** : une preuve dit que le process ne peut plus servir. `sweep --kill` arrête ceux-là,
+  après confirmation (`--yes` pour ne pas la demander, `--dry-run` pour simuler).
+- **À vérifier** : peut-être encore utilisé. Jamais arrêté par `--kill` seul ; on désigne celui
+  qu'on veut arrêter par `sweep --kill --pid N`.
+
+Les preuves exigées pour « sûr » (sous macOS, les serveurs MCP restent à vérifier, faute de lire
+leur canal ; sous Windows, qui ne rattache pas les orphelins, tout reste à vérifier) :
+
+| Reste | Sûr si… | Sinon, à vérifier si… |
+|---|---|---|
+| Serveur MCP | son lanceur est mort (recueilli par `init` ou `systemd --user`) **et** plus aucun process ne tient le canal par lequel l'agent lui parlait | détaché sans canal (lancé à part exprès ?) |
+| Agent (claude, agy…) | interactif, sans terminal, lanceur mort, inactif | inactif depuis `--idle-hours` (3 h), ou même conversation ouverte deux fois |
+| Agent suspendu (Ctrl+Z) | un autre agent tourne dans son terminal : il a été oublié derrière | seul dans son terminal (`fg` le reprend) |
+| Serveur de dev | dossier supprimé, sans terminal, lanceur mort | dossier supprimé mais encore attaché |
+
+Jamais candidats : les process d'un autre utilisateur, sweep et ses ancêtres (le terminal,
+l'agent qui le lance), un process dont le parent vit encore et lui parle, un dossier vu dans un
+conteneur. Avant d'arrêter, sweep vérifie que le pid n'a pas été réattribué ; il envoie SIGTERM,
+puis SIGKILL à ceux qui l'ignorent.
+
 ## Mettre à jour
 
 Sur une branche dédiée (`chore/kiln-update`), avec un arbre propre :

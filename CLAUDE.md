@@ -17,7 +17,11 @@ commit qui ajoute, déplace ou retire un dossier, un domaine ou un point d'entr�
 endroit, ce qu'on y trouve ; pas de copie du code.
 
 - `backend/sweep/` : commandes (`cli.py`, point d'entrée `__main__.py`) et
-  logique métier ; `backend/tests/` : tests.
+  logique métier ; `system.py`, `linux_proc.py`, `windows_host.py` : lecture de la machine ;
+  `terminate.py` : arrêt des process.
+- `backend/sweep/rules/` : règles de détection (agents, MCP, serveurs de dev), une par
+  module ; `patterns.py` : ce qui reconnaît chaque sorte de process.
+- `backend/tests/` : tests, sur des process simulés (`factories.py`).
 - `docs/backlog/` : suivi du travail (backlog, en anglais) ; `charte.toml` : règles contrôlées par `charte`.
 
 ## Langue

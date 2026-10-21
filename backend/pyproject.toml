@@ -3,7 +3,9 @@ name = "sweep"
 version = "0.1.0"
 description = "Trouve ce qui encombre la RAM et le swap (agents oubli\u00e9s, serveurs orphelins) et propose quoi tuer, sous Linux, WSL, macOS et Windows."
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "psutil>=7.2.2,<8.0.0",
+]
 
 # La commande installée : `uv run sweep` dans backend/, ou `uv tool install --editable backend`.
 [project.scripts]
@@ -22,6 +24,7 @@ dev = [
     "pytest>=9.1.1,<10.0.0",
     "pytest-cov>=7.1.0,<8.0.0",
     "ruff>=0.16.10,<0.17.0",
+    "types-psutil>=7.2.2,<8.0.0",
 ]
 
 [tool.ruff]
