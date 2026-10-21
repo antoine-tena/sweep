@@ -40,5 +40,7 @@ def _send(handle: psutil.Process, *, is_forced: bool) -> None:
             handle.kill()
         else:
             handle.terminate()
+            # Un process suspendu ne reçoit SIGTERM qu'une fois relancé.
+            handle.resume()
     except psutil.NoSuchProcess, psutil.AccessDenied:
         return
