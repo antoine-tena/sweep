@@ -1,4 +1,4 @@
-"""`python -m sweep` : même point d'entrée que la commande installée."""
+"""`python -m sweep`: the same entry point as the installed command."""
 
 import sys
 

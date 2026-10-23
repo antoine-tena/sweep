@@ -1,0 +1,54 @@
+<!-- Written by kiln and kept current by `kiln update`: do not edit, it would be overwritten.
+Project rules go in CLAUDE.md or in .claude/rules/ outside kiln/. -->
+# Sweep: working here
+
+Trouve ce qui encombre la RAM et le swap (agents oubliés, serveurs orphelins) et propose quoi tuer, sous Linux, WSL, macOS et Windows.
+
+Size: **Spark**, a script, a personal tool, a one-off analysis (`kiln set size=…` changes it).
+Backend a Python command-line tool in `backend/`.
+The repo is generated and kept current by [kiln](https://github.com/antoine-tena/kiln).
+
+## Commands
+- `cd backend && uv run sweep --help`: run the tool; `uv tool install --editable backend`
+  installs it on the machine.
+- `kiln check`: every check of the stack (ruff, mypy, pytest), then `charter`.
+  Run it before saying a change is done.
+- A Python dependency: `uv add <package>` in its directory (`--dev` for a tool); never pip.
+- `kiln update`: kiln's improvements and compatible dependency upgrades, on a branch, checks
+  included; `kiln set key=value` changes a setting of the project (stack, team, podman…).
+
+## Language
+- Talk with the user in French. Docs (README, `docs/`), commit messages, code
+  comments, tickets and the texts users read are in French too.
+- Code identifiers are always English. The keywords of `docs/backlog/` (`Type`, `Status`,
+  `todo`, section titles) stay English whatever the language.
+
+## Where the state of the project lives
+
+- The README describes the project as it is now: a change to a command, a setting, a route or a
+  way of running the project updates it in the same branch, never "later".
+
+- `docs/backlog/` is the only up-to-date list of work: `backlog.md` (open tickets `T-NN` by
+  priority, how to write them in its `README.md`), `done.md` (closed ones), `rejected.md` (what was turned down), `urgent.md`
+  (what only a human of the team can do). Skill `/kiln:backlog`.
+- `charter.toml`: the checked rules and their budgets; `kiln-waivers.toml`: deliberate
+  deviations; `.copier-answers.yml`: the project's settings for kiln (changed by `kiln set`,
+  never by hand).
+
+## Git
+
+- **[NO-COMMIT-ON-MAIN]** Never commit on `main` nor on `develop`: always a dedicated branch,
+  preferably in its own worktree (`/kiln:worktree`, under `.claude/worktrees/`), so that two
+  sessions never cross in the main tree. It is merged into `develop` by `/kiln:merge`, directly:
+  no pull request nor approval required (a PR stays possible to ask for an opinion). Enforced by
+  the `no-commit-to-branch` pre-commit hook, kiln's branch guard, and GitHub rulesets (`develop`
+  can be neither deleted nor force-pushed; `main` only takes releases, through `/kiln:release`).
+- **[BRANCHES]** Prefixes `feat/`, `fix/`, `refactor/`, `test/`, `chore/`, `docs/`; lowercase,
+  no spaces (`feat/station-map`).
+- **[COMMITS]** Small and atomic: a title of 50
+  characters at most, prefixed by its type with an optional scope (`feat:`, `fix:`,
+  `refactor:`, `style:`, `docs:`, `perf:`, `test:`, `build:`, `ci:`, `chore:`, `revert:`;
+  `fix(map): …`). Never a `Co-Authored-By: Claude` nor `Claude-Session:` line,
+  never `--author`: the author stays the one of `git config`.
+- **[MERGE]** Merge commits (`git merge --no-ff`), never squash nor rebase onto the integration
+  branch; then the branch goes, local and remote, with its worktree (`/kiln:merge`).

@@ -1,1 +1,1 @@
-"""Paquet de la commande `sweep` ; sa description est dans `pyproject.toml`."""
+"""Package of the `sweep` command; its description is in `pyproject.toml`."""

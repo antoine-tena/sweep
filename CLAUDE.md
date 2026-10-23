@@ -1,277 +1,35 @@
-# Sweep — consignes et charte de développement
+# Sweep
 
 Trouve ce qui encombre la RAM et le swap (agents oubliés, serveurs orphelins) et propose quoi tuer, sous Linux, WSL, macOS et Windows.
 
-Envergure : **Spark**, un script, un outil perso, une analyse ponctuelle (changer : `kiln set envergure=…`).
+<!-- This file belongs to the project: kiln wrote it once and never changes it. kiln's rules live
+in .claude/rules/kiln/ and are kept current by `kiln update`. Write here what Claude cannot
+guess about this project, and keep it under 200 lines: every session reads it. -->
 
-Backend outil en ligne de commande Python (`backend/`).
-Ce fichier réunit les consignes de travail sur le dépôt et la **charte**, norme unique du code,
-reprise de celle d'AnnSki : tout code nouveau la respecte, humains et agents.
-La charte tient en deux fichiers : celui-ci (§0, §1, §4, §5) et [`backend/CLAUDE.md`](backend/CLAUDE.md)
-(§3), chargés par Claude Code dès qu'il travaille dans le dossier.
+## Repo map
 
-## Carte du repo
+Where to look, so as not to explore: read it before opening files, and update it in the commit
+that adds, moves or removes a directory, a domain or an entry point. One line per place, what
+it holds; no copy of the code.
 
-Où chercher, pour ne pas explorer : à lire avant d'ouvrir des fichiers, à tenir à jour dans le
-commit qui ajoute, déplace ou retire un dossier, un domaine ou un point d'entrée. Une ligne par
-endroit, ce qu'on y trouve ; pas de copie du code.
+- `backend/sweep/`: commands (`cli.py`, entry point `__main__.py`) and
+  business logic; `backend/tests/`: tests.
+- `docs/backlog/`: the work to do; `charter.toml`: the checked rules; `.claude/rules/kiln/`:
+  kiln's rules for Claude.
 
-- `backend/sweep/` : commandes (`cli.py`, point d'entrée `__main__.py`) et
+## Notes
+
+<!-- Decisions, conventions and pitfalls of this project that Claude cannot guess from the code:
+"we never call X directly, always through Y", "the staging database is reset every night"… -->
+
+## Carried over from the instructions of kiln 0.3
+
+### From `CLAUDE.md`
+
+#### Carte du repo
+
   logique métier ; `system.py`, `linux_proc.py`, `windows_host.py` : lecture de la machine ;
   `terminate.py` : arrêt des process.
 - `backend/sweep/rules/` : règles de détection (agents, MCP, serveurs de dev), une par
   module ; `patterns.py` : ce qui reconnaît chaque sorte de process.
 - `backend/tests/` : tests, sur des process simulés (`factories.py`).
-- `docs/backlog/` : suivi du travail (backlog, en anglais) ; `charte.toml` : règles contrôlées par `charte`.
-
-## Langue
-
-- Échanges, documentation et messages de commit en français ; code en anglais.
-
-## Où est l'état du projet
-
-- **`docs/backlog/` est la seule source à jour** : [`backlog.md`](docs/backlog/backlog.md), la
-  liste unique de ce qui reste, rangée par priorité (un ticket `T-NN` par chose : type, état,
-  date d'ouverture et détail ; ce qui est terminé est dans sa section « Done »),
-  [`rejected.md`](docs/backlog/rejected.md), ce qui a été refusé, et
-  [`urgent.md`](docs/backlog/urgent.md), ce que seul un humain de l'équipe peut faire (une case
-  par action). Skill `base:backlog` ; la status line de Claude Code les compte.
-
----
-
-## 0. Mode d'emploi de la charte
-
-### Identifiants stables
-Chaque règle porte un identifiant entre crochets, par exemple **`[VERROUS]`**. Le code, les
-tests, `charte.toml` et les PR citent une règle par cet identifiant — `CLAUDE.md [VERROUS]` —,
-**jamais par un numéro de ligne**. Un identifiant ne change jamais et n'est jamais réutilisé ;
-une règle abolie garde le sien, marquée *abrogée*. `CLAUDE.md` désigne la charte entière :
-l'identifiant se trouve dans l'un de ses trois fichiers.
-
-### Trois régimes d'application
-- **Stricte** : zéro infraction tolérée, le contrôle fait échouer la CI.
-- **Cliquet** : un passif existe ; son budget est plafonné et **ne peut que baisser**. Réduire
-  la dette et abaisser le budget dans le même commit.
-- **Revue** : non vérifiable mécaniquement ; appliqué en relecture.
-
-Les règles contrôlées sont décrites dans `charte.toml` et vérifiées par la commande `charte`
-(installée avec kiln) après chaque édition, avant chaque commit (pre-commit) et en CI ;
-les autres sont listées dans `scripts/ci/charte-non-verifiee.txt` et appliquées en revue.
-Une règle impossible à tenir s'**amende ici**, explicitement, avec sa raison et sa date — on ne
-la contourne pas en silence. Une exception ponctuelle se justifie par un commentaire au point
-d'appel, qui cite l'identifiant de la règle.
-
-### Hiérarchie
-En cas de conflit : **sécurité et intégrité des données > contrat d'API publié > lisibilité >
-règles de forme**. Exemple : renommer un booléen déjà exposé pour le préfixer en `is_`
-casserait le contrat ([CONTRAT-FIGE]) ; on ne le fait qu'en ouvrant une nouvelle version.
-
-### Ce qui vient de kiln
-- **[REMONTER-A-KILN]** Un défaut de ce que fournit kiln (fichier généré, règle commune de cette
-  charte, skill ou hook d'un plugin kiln — ceux de `base` sont visibles dans `.claude/kiln` —,
-  workflow réutilisable) ne se corrige pas dans ce dépôt : `kiln update` écraserait la
-  correction. Il remonte à kiln, https://github.com/antoine-tena/kiln, par le skill
-  `base:report-to-kiln` : **pull request** quand la correction est claire et localisée (depuis
-  un fork, PR vers `develop`, avec le test qui l'aurait détecté) ; **issue** quand il faut
-  trancher entre plusieurs voies, ou qu'on ne sait pas corriger. Dans le doute, l'issue
-  d'abord. Ce qui part est public, sous le compte GitHub de l'utilisateur : rien sans son
-  accord explicite, rien de privé de ce dépôt (code, noms, données, secrets), en anglais, et
-  seulement après avoir vérifié que kiln est à jour et que personne ne l'a déjà signalé. Une
-  règle propre à ce dépôt, elle, s'amende ici.
-- **[DEROGATIONS]** Un écart assumé à une règle commune, le temps que kiln tranche ou parce que
-  ce dépôt s'en écarte sciemment, se déclare par `kiln waive` dans `kiln-waivers.toml` à la
-  racine (kiln ne le réécrit jamais) : règle (`rule`), chemins (`paths`, sinon tout le dépôt),
-  raison, auteur, début et échéance. Une semaine au plus la première fois, puis un mois, trois
-  mois et six mois à chaque renouvellement (`kiln waive --renew`) ; une dérogation échue ne
-  couvre plus rien et `charte` échoue. Un fichier généré se fige de même (`kiln waive
-  <fichier>`) : `kiln update` n'y touche plus et montre ce que kiln y change. [DONNEES-PERSO],
-  [SECRETS], [PAS-SUR-MAIN] et [DEPENDANCES-FIGEES] ne se dérogent pas. Une dérogation ne
-  s'ajoute ni ne se renouvelle **sans l'accord explicite de l'utilisateur**, jamais pour faire
-  passer un contrôle ; ce qu'elle couvre ne se « corrige » pas d'office.
-
----
-
-## 1. Règles communes
-
-### Taille et découpage
-- **[TAILLE-FICHIER]** 300 lignes au plus par fichier (cliquet).
-  - Backend : un module qui dépasse devient un paquet ; `__init__.py` réexporte l'API publique.
-  - Exemptés : migrations générées, `settings.py`, fichiers générés — ceux que
-    `.gitattributes` marque `linguist-generated`, seule liste (`openapi.json`, types
-    TypeScript générés, verrous).
-- **[TAILLE-FONCTION]** Une fonction = une responsabilité, **30 lignes au plus** (hors
-  gabarit des composants, hors docstring). Un test peut aller jusqu'à 40 lignes si le
-  découper cacherait le scénario.
-- **[UNE-CLASSE]** Une classe par fichier. Exceptions, qui restent sous [TAILLE-FICHIER] : les
-  schémas Pydantic d'un même domaine (`schemas.py`, `responses.py`), les exceptions
-  métier d'un même domaine, les classes de test d'un même fichier de test.
-
-### Nommage
-- **[NOMS-INTERDITS]** Jamais de noms génériques : `data`, `df`, `res`, `val`, `tmp`, `info`,
-  `obj`, `item` seul, `result` seul, `x`. Le nom dit *ce que* contient la variable
-  (`sales_by_month`, `station_coordinates`). Seule exception : un paramètre imposé par une
-  signature de framework.
-- **[VOCABULAIRE]** Le code parle comme les apps du backend, en anglais ; les textes affichés
-  (titres, axes, légendes, messages) sont en français. Les adresses des pages sont des URL
-  publiques et n'ont pas à suivre le vocabulaire du code.
-- **[BOOLEENS]** Un booléen est préfixé : `is_`, `has_`, `should_`, `can_` en Python.
-- **[CASSE]** Classes Python en PascalCase ; fonctions et variables Python en snake_case ;
-  constantes en `UPPER_SNAKE_CASE`.
-
-### Valeurs magiques
-- **[ZERO-MAGIE]** Pas de littéral métier en dur (statut, rôle, seuil, délai, prix, couleur,
-  nom de colonne répété) : `enum.StrEnum` ou constante nommée en tête de module en Python. Ne sont pas magiques : `0`, `1`, `-1`, `""`, `None`, les index et les littéraux des
-  tests.
-
-### Argent, dates, données personnelles, secrets
-- **[ARGENT]** Tout montant est un **entier en centimes** (`*_cents`), dans la base, l'API et
-  le front. Jamais de `float` pour de l'argent ; conversion en euros uniquement à l'affichage.
-- **[FUSEAU]** Stockage en UTC. Toute notion calendaire — « aujourd'hui »,
-  jour, mois, bornes d'une période — se calcule en `Europe/Paris` (`ZoneInfo("Europe/Paris")`),
-  jamais par `.date()` sur un instant UTC.
-- **[DONNEES-PERSO]** Aucune donnée personnelle (e-mail, nom, téléphone, pièce, IP complète)
-  dans les logs, les messages d'erreur, les URL, les clés de cache ou les figures : on
-  journalise l'identifiant (`user_id`), pas la personne. Toute nouvelle donnée personnelle
-  stockée est couverte par l'export et l'anonymisation RGPD dans le même lot.
-- **[SECRETS]** Aucun secret dans le code ni dans le dépôt : tout passe par l'environnement
-  (`os.environ` lu à la frontière côté backend). Un secret commis par erreur
-  est considéré compromis et changé.
-
-### Erreurs
-- **[EXCEPTIONS]** Jamais d'exception avalée en silence (`except: pass`, `catch {}`) ni de
-  capture générique (`except Exception`) qui ne la relance pas ou ne la journalise pas.
-
-### Commentaires et tests
-- **[RENVOIS-AUDIT]** Un commentaire dit la contrainte au présent, jamais l'historique : aucun
-  renvoi à un audit ou à un constat (« audit H36 », « (CART-06) ») dans le code. L'historique va
-  dans le message de commit ; le constat d'origine reste dans `docs/` (strict).
-
----
-
-## 3. Backend (outil en ligne de commande Python)
-
-Dans [`backend/CLAUDE.md`](backend/CLAUDE.md) : règles propres à outil en ligne de commande Python.
-
----
-
-## 4. Standards 2026
-
-Régime **revue** tant qu'aucun contrôle ne les vérifie ; chacun a vocation à passer en cliquet
-puis en strict.
-
-### Chaîne d'approvisionnement
-- **[DEPENDANCES-FIGEES]** Toute dépendance est résolue par un lockfile commité (`uv.lock`,
-  `pnpm-lock.yaml`) ; la CI installe en mode figé (`uv sync --locked`, `--frozen-lockfile`) et
-  échoue si le lockfile dérive.
-- **[UV-PODMAN]** Python passe par uv (`uv add`, `uv run`, `uv tool install`) : jamais pip,
-  pipx ni `requirements.txt`. Les conteneurs passent par podman (`Containerfile`,
-  `compose.yaml`, `podman-compose`) : jamais docker, `Dockerfile` ni `docker-compose.yml`.
-- **[IMAGES-PAR-EMPREINTE]** Toute image de base de conteneur est épinglée par empreinte
-  `@sha256:`, jamais par un tag mobile seul.
-- **[AUDIT-VULNERABILITES]** La CI audite les dépendances à chaque commit (`uv audit` pour
-  chaque projet Python, `pnpm audit --audit-level=high` pour un front pnpm) ; une vulnérabilité haute ou
-  critique bloque la fusion, sauf dérogation datée et justifiée.
-- **[NOUVELLE-DEPENDANCE]** Ajouter une dépendance se justifie dans le commit : maintenue
-  (release de moins d'un an), licence compatible, pas d'équivalent déjà présent, pas de nom
-  proche d'un paquet connu (typosquatting). Les montées de version passent par `kiln update`
-  (compatibles par défaut, majeures par `kiln update --major`, contrôles à la suite), une
-  branche par passage ; Dependabot ne propose que les correctifs de sécurité (amendé le 9 octobre 2026).
-- **[SBOM]** Chaque image déployée produit sa nomenclature logicielle (CycloneDX ou SPDX),
-  conservée avec la release.
-
-### Exécution durcie
-- **[CONTENEUR-DURCI]** Conteneurs *rootless* et utilisateur non-root, système de fichiers en
-  lecture seule hors volumes déclarés, `cap_drop: ALL`, aucun secret dans l'image ni dans ses
-  couches.
-- **[SANTE]** Chaque service expose une sonde de vivacité et une sonde de disponibilité
-  distinctes ; la seconde vérifie réellement ses dépendances (base, cache).
-- **[SAUVEGARDE-TESTEE]** Une sauvegarde jamais restaurée n'existe pas : la restauration est
-  répétée à intervalle régulier et chronométrée.
-
-### Sécurité navigateur
-- **[CSP-NONCE]** Content-Security-Policy stricte par *nonce* : pas de `unsafe-inline`, pas de
-  `unsafe-eval`, pas de joker d'hôte. Tout nouveau domaine tiers s'ajoute explicitement et se
-  justifie.
-- **[EN-TETES]** `Strict-Transport-Security` (préchargé), `X-Content-Type-Options: nosniff`,
-  `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` minimale,
-  `Cross-Origin-Opener-Policy: same-origin`. Vérifiés par un test.
-- **[COOKIES]** Tout cookie de session est `HttpOnly`, `Secure`, `SameSite=Lax` au minimum, et
-  préfixé `__Host-` quand il n'a pas besoin de sous-domaine.
-- **[INTEGRITE]** Aucun script tiers chargé depuis un CDN sans *Subresource Integrity*.
-
-### Observabilité
-- **[OPENTELEMETRY]** Traces distribuées OpenTelemetry (propagation W3C `traceparent`) de la
-  requête jusqu'aux traitements de fond et aux API tierces.
-- **[SLO]** Chaque parcours critique a un objectif de niveau de service chiffré
-  (disponibilité, latence p95) et un budget d'erreur. Un budget épuisé gèle les
-  fonctionnalités au profit de la fiabilité.
-- **[ALERTE-SUR-SYMPTOME]** On alerte sur ce que l'utilisateur subit (taux d'erreur, latence,
-  file de traitements qui grossit), pas sur des causes internes (CPU, mémoire).
-
-### Performance
-- **[LATENCE-API]** p95 < 300 ms pour une route de lecture ; une route plus lente se justifie ou
-  passe par le cache.
-
-### Tests
-- **[TESTS-PROPRIETES]** Les calculs à invariants — agrégations, bornes de période, totaux,
-  pourcentages — ont des tests par propriétés (`hypothesis`) en plus des exemples.
-- **[TESTS-MUTATION]** Les modules de calcul critiques passent périodiquement au test par
-  mutation (`mutmut`) : un mutant qui survit est un test manquant.
-
-### Python
-- **[PYTHON-MODERNE]** Syntaxe Python 3.12+ : génériques PEP 695 (`def first[T](...)`,
-  `type Alias = ...`), `X | None` plutôt que `Optional[X]`, `@override` sur toute surcharge,
-  `match` pour les aiguillages sur des statuts, `Self` pour les retours chaînés.
-- **[TYPAGE-STRICT]** mypy `strict` sur tout nouveau module ; aucun `# type: ignore` sans code
-  d'erreur précis et raison.
-- **[VALIDATION-AUX-FRONTIERES]** Toute donnée qui entre (API tierce, fichier source,
-  `localStorage`, paramètre d'URL) est validée par un schéma à l'exécution avant usage : le
-  type TypeScript ne protège que ce que le compilateur voit.
-
-### Livraison continue
-- **[FEATURE-FLAGS]** Une fonctionnalité risquée se livre éteinte derrière un drapeau, puis
-  s'active sans redéploiement. Un drapeau a une date de retrait ; au-delà, il est supprimé.
-- **[DEPLOIEMENT-REVERSIBLE]** Tout déploiement est annulable en une commande, sans perte de
-  données : un déploiement qui migre le schéma se défait en restaurant la
-  sauvegarde d'avant bascule.
-- **[CI-RAPIDE]** La CI complète tient en moins de 10 minutes ; un test instable est mis en
-  quarantaine et corrigé dans la semaine, jamais relancé jusqu'à ce qu'il passe.
-
-### Développement assisté par IA
-- **[IA-RESPONSABLE]** Le code produit par un agent obéit à la même charte et à la même
-  relecture que le code humain ; celui qui fusionne en répond.
-- **[IA-CONTEXTE]** Les deux fichiers de la charte sont le contexte de référence des agents :
-  une règle que l'agent enfreint régulièrement est une règle mal écrite, à reformuler là où elle
-  vit.
-- **[IA-CONFIDENTIALITE]** Aucun secret, aucune donnée personnelle réelle n'est collée dans une
-  conversation avec un agent ; on travaille sur des données de test ou publiques.
-- **[IA-FONCTIONNALITE]** Toute fonctionnalité qui appelle un modèle de langage passe par
-  une file, borne son coût par appel, journalise modèle et jetons
-  consommés, et ne laisse jamais le texte généré déclencher une action sans validation
-  (injection de consignes).
-
----
-
-## 5. Git
-
-- **[PAS-SUR-MAIN]** Jamais de commit direct sur `main` ni sur `develop` : toujours une branche
-  dédiée, de préférence dans son propre worktree (`.claude/worktrees/<nom>`), pour que deux
-  sessions ne se croisent pas dans l'arbre principal, puis fusionnée dans `develop` par
-  `base:fusion`, directement : ni pull request ni approbation obligatoires (amendé le
-  15 octobre 2026). Une PR reste possible pour demander un avis, sans bloquer la fusion. Ce qui
-  est imposé physiquement : le crochet `no-commit-to-branch` du pre-commit refuse le commit en
-  local sur `main` et `develop` ; le ruleset GitHub « Protection develop » refuse la suppression
-  et le force-push de `develop`, et « Protection main » tout push sur `main` hors
-  administrateurs (une version passe par `base:version`).
-- **[BRANCHES]** Préfixes `feat/`, `fix/`, `refactor/`, `test/`, `chore/`, `docs/` ;
-  minuscules, sans espaces, en français (`feat/carte-stations`).
-- **[COMMITS]** Petits et atomiques :
-  - **10 fichiers au plus** par commit ;
-  - titre de **50 caractères au plus**, en français, préfixé par le type, avec une portée
-    facultative : `feat:`, `fix:`, `refactor:`, `style:`, `docs:`, `perf:`, `test:`,
-    `build:`, `ci:`, `chore:`, `revert:` (`fix(carte): …`) ;
-  - un commit de migration ne mélange pas schéma et logique métier ;
-  - jamais de mention `Co-Authored-By: Claude` ni `Claude-Session:` dans le message ;
-  - jamais `--author` : l'auteur reste celui de `git config`.
-- **[FUSION]** Fusion en commit de fusion (`git merge --no-ff`, jamais de squash ni de rebase),
-  puis suppression de la branche, locale et distante, et du worktree : skill `base:fusion`.

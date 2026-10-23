@@ -1,7 +1,8 @@
 """sweep : trouve ce qui encombre la RAM et le swap, et propose quoi tuer.
 
 Sans option, sweep ne fait que montrer. `--kill` n'arrête que les candidats sûrs, après
-confirmation ; un candidat « à vérifier » ne s'arrête que désigné par `--pid` ([DESTRUCTIF]).
+confirmation ; un candidat « à vérifier » ne s'arrête que désigné par `--pid`
+([DESTRUCTIVE-ACTIONS]).
 """
 
 import argparse
@@ -105,7 +106,7 @@ def _pid_list(pids: Iterable[int]) -> str:
 
 
 def _positive_hours(raw_hours: str) -> float:
-    """Validée à la frontière ([VALIDATION-AUX-FRONTIERES]) : un nombre d'heures positif."""
+    """Validée à la frontière ([VALIDATE-AT-BOUNDARIES]) : un nombre d'heures positif."""
     try:
         hours = float(raw_hours)
     except ValueError:

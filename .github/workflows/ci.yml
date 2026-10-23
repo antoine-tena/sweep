@@ -1,31 +1,34 @@
 name: CI
 
-# Les workflows réutilisables vivent dans kiln (antoine-tena/kiln, public), cités à la version
-# de kiln dont part le projet (v0.3.4-rc.1) : `kiln update` les fait passer à la suivante. Le
-# projet ne garde ici que ses paramètres.
+# The reusable workflows live in kiln (antoine-tena/kiln, public), cited at the kiln release the
+# project comes from (develop): `kiln update` moves them to the next one. The project only
+# keeps its parameters here.
 on:
+  # Only on the way to main: a release branch. A merge into develop runs fast linters only.
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  # Rejouée par deploy.yml avant toute mise en production.
+    branches: [ "release/**" ]
+  # Callable from another workflow of the repo.
   workflow_call:
+
+# [WORKFLOW-PERMISSIONS]: the token reads the repo, nothing more; kiln's workflows need no more.
+permissions:
+  contents: read
 
 jobs:
   backend:
-    uses: antoine-tena/kiln/.github/workflows/python.yml@v0.3.4-rc.1
+    uses: antoine-tena/kiln/.github/workflows/python.yml@develop
     with:
-      dossier: backend
+      directory: backend
 
-  charte:
-    uses: antoine-tena/kiln/.github/workflows/charte.yml@v0.3.4-rc.1
+  charter:
+    uses: antoine-tena/kiln/.github/workflows/charter.yml@develop
 
-  # [SECRETS] : tout l'historique est fouillé par gitleaks, sans licence d'organisation.
+  # [SECRETS]: gitleaks searches the whole history, with no organisation licence.
   secrets-scan:
-    uses: antoine-tena/kiln/.github/workflows/secrets.yml@v0.3.4-rc.1
+    uses: antoine-tena/kiln/.github/workflows/secrets.yml@develop
 
-  securite:
-    uses: antoine-tena/kiln/.github/workflows/securite.yml@v0.3.4-rc.1
+  security:
+    uses: antoine-tena/kiln/.github/workflows/security.yml@develop
     with:
       uv: "backend"
       pnpm: ""
