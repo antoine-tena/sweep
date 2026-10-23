@@ -7,7 +7,7 @@ dependencies = [
     "psutil>=7.2.2,<8.0.0",
 ]
 
-# La commande installée : `uv run sweep` dans backend/, ou `uv tool install --editable backend`.
+# The installed command: `uv run sweep` in backend/, or `uv tool install --editable backend`.
 [project.scripts]
 sweep = "sweep.cli:main"
 

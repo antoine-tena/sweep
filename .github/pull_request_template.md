@@ -12,7 +12,7 @@
 
 ## Vérifications
 
-- [ ] Le code respecte les règles du `CLAUDE.md` (taille, nommage, [ZERO-MAGIE])
+- [ ] Le code respecte les règles de `.claude/rules/kiln/` et du `CLAUDE.md` ([FILE-SIZE], [GENERIC-NAMES], [NO-MAGIC-VALUES])
 - [ ] Commits de 10 fichiers au plus, titres préfixés de 50 caractères au plus ([COMMITS])
-- [ ] Un bug corrigé arrive avec le test qui l'aurait détecté ([NON-REGRESSION])
-- [ ] Aucun secret ni donnée personnelle réelle dans le diff ([SECRETS], [DONNEES-PERSO])
+- [ ] Un bug corrigé arrive avec le test qui l'aurait détecté ([REGRESSION-TEST])
+- [ ] Aucun secret ni donnée personnelle réelle dans le diff ([SECRETS], [PERSONAL-DATA])

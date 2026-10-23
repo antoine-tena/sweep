@@ -1,11 +1,11 @@
-# Fins de ligne normalisées en LF dans le dépôt, quel que soit le poste (Windows compris).
+# Line endings normalised to LF in the repo, whatever the machine (Windows included).
 * text=auto eol=lf
 
-# Binaires.
+# Binaries.
 *.png binary
 *.jpg binary
 *.ico binary
 *.npz binary
 
-# Fichiers générés, exemptés de [TAILLE-FICHIER] (CLAUDE.md).
+# Generated files, exempt from [FILE-SIZE].
 backend/uv.lock linguist-generated=true

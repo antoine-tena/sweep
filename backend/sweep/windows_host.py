@@ -39,7 +39,7 @@ def read_windows_host() -> HostStatus | None:
 
 
 def parse_host_answer(raw_answer: str) -> HostStatus | None:
-    """Valide la réponse de PowerShell ([VALIDATION-AUX-FRONTIERES]) avant tout usage."""
+    """Valide la réponse de PowerShell ([VALIDATE-AT-BOUNDARIES]) avant tout usage."""
     try:
         answer = json.loads(raw_answer)
     except ValueError:

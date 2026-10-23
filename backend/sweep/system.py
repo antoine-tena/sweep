@@ -1,4 +1,4 @@
-"""Accès à la machine par psutil ([SYSTEME-A-LA-FRONTIERE]) : process et mémoire."""
+"""Accès à la machine par psutil ([SYSTEM-AT-THE-EDGE]) : process et mémoire."""
 
 import os
 import sys

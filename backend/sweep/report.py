@@ -1,4 +1,4 @@
-"""Rendu d'un passage : texte pour un humain, JSON stable pour un script ([SORTIE-MACHINE])."""
+"""Rendu d'un passage : texte pour un humain, JSON stable pour un script ([MACHINE-OUTPUT])."""
 
 import json
 

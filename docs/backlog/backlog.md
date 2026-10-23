@@ -1,43 +1,12 @@
 # Backlog
 
 Everything left to do on Sweep, in a single list ordered by priority. Started on
-**2026-10-13**. What is done is in the "✅ Done" section at the bottom; what was turned
-down is in [rejected.md](rejected.md). **Nothing else is open.**
+**2026-10-13**. Closed tickets are in [done.md](done.md), what was turned down in
+[rejected.md](rejected.md); how to write a ticket: [README.md](README.md). **Nothing else is open.**
 
 North star: **sweep libère la RAM du poste en une commande sûre**.
 
----
-
-## How to use (humans and agents)
-
-**A ticket** = a `### T-NN · Title` heading, then five fixed lines, then the details:
-
-    ### T-NN · Short title that says what to achieve
-    - **Type**: task
-    - **Status**: todo
-    - **Opened**: YYYY-MM-DD
-    - **Effort**: S · **Owner**: … · **Due**: —
-    - **Origin**: where it comes from · audit `docs/_archive/<folder>/README.md` l. 10-20
-
-    Why, what to do (as a `- [ ]` checklist when there are several steps), where to look.
-
-- **ID** `T-NN`: stable, never reused, quoted as is in commits and branches.
-  **Next free: T-02.**
-- **Type**, one of: `bug` (something is broken); `improvement` (it works, it could work
-  better); `idea` (nothing exists yet, to be explored); `task` (work that is neither: a release,
-  a decision, a check).
-- **Status**, one of: `todo`; `in progress — branch <name>, since YYYY-MM-DD`;
-  `blocked — waiting for <who or what>`; `to verify — <where>`.
-- **Priority** = the section the ticket lives in; changing it means moving the ticket.
-  🔴 critical (now), 🟠 important (before the north star), 🟡 normal, ⚪ background
-  (long-running work, debt, ideas still to be explored).
-- **Effort**: XS (under an hour), S (half a day), M (one or two days), L (more).
-- **Closing a ticket**: remove it from its section and add a line at the top of the "✅ Done"
-  log: `- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.
-- **Details in archived audits**: when a ticket quotes lines of `docs/_archive/`, the original
-  finding is there in full; it is old, check it against the current code.
-- **Locations quoted are hints, not addresses.**
-- Overview: `grep -E '^(## |### T-|- \*\*Status)' docs/backlog/backlog.md`.
+**Next free: T-03.**
 
 ---
 
@@ -57,12 +26,3 @@ What to do, why, where to look.
 ## 🟡 Normal
 
 ## ⚪ Background — long-running work, debt and ideas
-
----
-
-## ✅ Done
-
-### Log
-
-One line per closed ticket, most recent first:
-`- **YYYY-MM-DD** · T-NN · Title — what was done (branch) · opened YYYY-MM-DD`.

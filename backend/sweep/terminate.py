@@ -1,4 +1,4 @@
-"""Arrêt des process : SIGTERM, puis SIGKILL pour ceux qui l'ignorent ([DESTRUCTIF])."""
+"""Arrêt des process : SIGTERM, puis SIGKILL pour ceux qui l'ignorent ([DESTRUCTIVE-ACTIONS])."""
 
 from collections.abc import Sequence
 from datetime import UTC, datetime
