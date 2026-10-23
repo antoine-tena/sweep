@@ -1,4 +1,4 @@
-"""Plateforme du poste : une détection unique ([MULTI-PLATEFORME])."""
+"""Plateforme du poste : une détection unique ([MULTI-PLATFORM])."""
 
 import sys
 from enum import StrEnum
