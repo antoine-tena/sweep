@@ -40,10 +40,10 @@ is old and must be checked** against the current code; they are never edited.
   (long-running work, debt, ideas still to be explored).
 - **Effort**: XS (under an hour), S (half a day), M (one or two days), L (more).
 - **Owner**: `—` (free, anyone may take it), a member's GitHub login (`@login`) or first name
-  (the ticket is reserved for them), `Claude` (an agent's job), or `contributor — #NN` (kept for
-  an outside contributor). An agent only works on a free ticket or one owned by the account it
-  works for (`gh api user --jq .login`): it skips the others and, asked for one, says who owns
-  it instead of doing it. **Each member writes only their own login**: taking a free ticket, or
+  (the ticket is reserved for them), or `contributor — #NN` (kept for an outside contributor);
+  never `Claude`: an agent is not an owner. An agent only works on a free ticket or one owned
+  by the account it works for (`gh api user --jq .login`): it skips the others and, asked for
+  one, says who owns it instead of doing it. **Each member writes only their own login**: taking a free ticket, or
   turning their own first name into their login; never someone else's (only the owner hands a
   ticket over).
 - **Releases**: the `## 🚀 Releases` section at the top places every open ticket in a planned
