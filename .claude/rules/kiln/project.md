@@ -48,7 +48,16 @@ The repo is generated and kept current by [kiln](https://github.com/antoine-tena
 - **[COMMITS]** Small and atomic: a title of 50
   characters at most, prefixed by its type with an optional scope (`feat:`, `fix:`,
   `refactor:`, `style:`, `docs:`, `perf:`, `test:`, `build:`, `ci:`, `chore:`, `revert:`;
-  `fix(map): …`). Never a `Co-Authored-By: Claude` nor `Claude-Session:` line,
-  never `--author`: the author stays the one of `git config`.
+  `fix(map): …`). Whether a commit says Claude helped (`Co-Authored-By: Claude`)
+  is each machine's choice (`kiln set ai_trailers=disclose|never`, kiln's branch guard enforces
+  it); never a `Claude-Session:` line, never `--author`: the author stays the one of
+  `git config`.
 - **[MERGE]** Merge commits (`git merge --no-ff`), never squash nor rebase onto the integration
   branch; then the branch goes, local and remote, with its worktree (`/kiln:merge`).
+
+## Way of working
+
+- **[REPRODUCE-FIRST]** A bug is reproduced, by a failing test or a command, before it is fixed.
+  A diagnosis, one's own or another session's, is checked on a copy first.
+- **[DIRECT-LINKS]** A step asked of a human online (a console, a back office, a form) comes with
+  its direct link, as precise as possible, never a menu path.
